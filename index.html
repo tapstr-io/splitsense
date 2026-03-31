@@ -272,18 +272,13 @@
       <div style="background:var(--surface);border-radius:16px;padding:28px;width:90%;max-width:420px;box-shadow:0 24px 60px rgba(0,0,0,0.5)">
         <h2 style="font-size:20px;font-weight:700;margin-bottom:6px">Strava API credentials</h2>
         <p style="font-size:13px;color:var(--label2);margin-bottom:20px;line-height:1.6">
-          One-time setup. Go to <strong style="color:var(--label)">strava.com/settings/api</strong>, create an app, set the
-          <strong style="color:var(--label)">Authorization Callback Domain</strong> to
-          <span class="code-inline">tapstr-io.github.io</span>, then paste your credentials below.
+          Paste your Strava API Client Secret below. You only need to do this once —
+          find it at <strong style="color:var(--label)">strava.com/settings/api</strong>.
         </p>
         <div class="card">
           <div class="form-row">
-            <label>Client ID</label>
-            <input type="text" id="clientId" placeholder="123456" />
-          </div>
-          <div class="form-row">
             <label>Client Secret</label>
-            <input type="password" id="clientSecret" placeholder="Required" />
+            <input type="password" id="clientSecret" placeholder="Paste from strava.com/settings/api" />
           </div>
         </div>
         <div id="modalError" class="error-msg"></div>
@@ -418,8 +413,8 @@
 <script>
 // ── state ──────────────────────────────────────────────────────────────────────
 let S = {
-  clientId:      localStorage.getItem('gpxsplit_id')        || '',
-  clientSecret:  localStorage.getItem('gpxsplit_secret')    || '',
+  clientId:      '216688',
+  clientSecret:  localStorage.getItem('gpxsplit_secret') || '63136ca5456e8f54711bce6cec2e64435fd91d62',
   token:         localStorage.getItem('gpxsplit_token')     || null,
   refreshToken:  localStorage.getItem('gpxsplit_refresh')   || null,
   expiresAt:     parseInt(localStorage.getItem('gpxsplit_expires') || '0'),
@@ -549,7 +544,6 @@ window.addEventListener('load', () => {
   } else {
     document.getElementById('themeToggle').textContent = '☀️';
   }
-  if (S.clientId)     document.getElementById('clientId').value     = S.clientId;
   if (S.clientSecret) document.getElementById('clientSecret').value = S.clientSecret;
   S.callbackUrl = 'https://tapstr-io.github.io/splitsense/callback.html';
   if (S.token) loadActivities();
@@ -559,8 +553,7 @@ window.addEventListener('load', () => {
 // ── OAuth ──────────────────────────────────────────────────────────────────────
 function startAuth() {
   clearError('setupError');
-  // If we already have credentials, go straight to OAuth
-  if (S.clientId && S.clientSecret) {
+  if (S.clientSecret && S.clientSecret !== '63136ca5456e8f54711bce6cec2e64435fd91d62') {
     launchOAuthPopup();
   } else {
     openCredsModal();
@@ -571,7 +564,6 @@ function openCredsModal() {
   const modal = document.getElementById('credsModal');
   modal.style.display = 'flex';
   // Pre-fill if partially saved
-  if (S.clientId)     document.getElementById('clientId').value     = S.clientId;
   if (S.clientSecret) document.getElementById('clientSecret').value = S.clientSecret;
 }
 
@@ -582,12 +574,10 @@ function closeCredsModal() {
 
 function submitCreds() {
   clearError('modalError');
-  const id  = document.getElementById('clientId').value.trim();
   const sec = document.getElementById('clientSecret').value.trim();
-  if (!id||!sec) { showError('modalError','Enter both Client ID and Client Secret.'); return; }
-  S.clientId = id; S.clientSecret = sec;
-  S.callbackUrl = 'https://tapstr-io.github.io/splitsense/callback.html';
-  localStorage.setItem('gpxsplit_id',       id);
+  if (!sec) { showError('modalError','Enter your Client Secret.'); return; }
+  S.clientSecret = sec;
+  S.callbackUrl  = 'https://tapstr-io.github.io/splitsense/callback.html';
   localStorage.setItem('gpxsplit_secret',   sec);
   localStorage.setItem('gpxsplit_callback', S.callbackUrl);
   closeCredsModal();
