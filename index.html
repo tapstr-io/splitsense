@@ -56,7 +56,7 @@
 
   /* ── top bar ── */
   .topbar {
-    height: 72px; background: var(--topbar-bg);
+    height: 92px; background: var(--topbar-bg);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border-bottom: 0.5px solid var(--separator);
     display: flex; align-items: center; justify-content: space-between;
@@ -74,6 +74,7 @@
   /* ── screens ── */
   .screen { display: none; }
   .screen.active { display: block; }
+  #screen-analysis.active { display: flex; flex-direction: column; }
 
   /* ── page title ── */
   .page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
@@ -172,6 +173,10 @@
   .temp-input-wrap { position: relative; display: flex; align-items: center; }
   input.temp-input { width: 60px; background: var(--bg2); border: none; border-radius: 7px; padding: 5px 20px 5px 8px; color: var(--orange); font-family: inherit; font-size: 13px; font-weight: 600; outline: none; -moz-appearance: textfield; }
   input.temp-input::-webkit-inner-spin-button { display: none; }
+  .tooltip-wrap { position: relative; display: inline-flex; align-items: center; gap: 6px; }
+  .tooltip-icon { width: 16px; height: 16px; border-radius: 50%; background: var(--bg2); color: var(--label2); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: default; flex-shrink: 0; }
+  .tooltip-box { display: none; position: absolute; bottom: calc(100% + 8px); right: 0; background: var(--surface); border: 0.5px solid var(--separator); border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--label2); line-height: 1.6; width: 260px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 50; }
+  .tooltip-wrap:hover .tooltip-box { display: block; }
   .temp-deg { position: absolute; right: 6px; font-size: 12px; color: var(--label2); pointer-events: none; }
 
   /* ── stat grid ── */
@@ -195,7 +200,7 @@
   .section-title { font-size: 11px; font-weight: 600; color: var(--label2); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; }
 
   /* ── splits table ── */
-  .table-card { background: var(--surface); border-radius: 12px; overflow: auto; max-height: calc(100vh - 380px); min-height: 320px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 0.5px 0 var(--separator); }
+  .table-card { background: var(--surface); border-radius: 12px; overflow: auto; flex: 1; min-height: 0; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 0.5px 0 var(--separator); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { padding: 10px 14px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--label2); text-align: left; border-bottom: 0.5px solid var(--separator); white-space: nowrap; position: sticky; top: 0; background: var(--surface); }
   td { padding: 9px 14px; border-bottom: 0.5px solid var(--separator); white-space: nowrap; }
@@ -363,7 +368,7 @@
     </div>
 
     <!-- ── ANALYSIS ── -->
-    <div id="screen-analysis" class="screen">
+    <div id="screen-analysis" class="screen" style="display:none;flex-direction:column;height:calc(100vh - 92px)">
       <div class="analysis-header">
         <div class="analysis-title" id="analysisTitle"></div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0">
@@ -373,7 +378,12 @@
       <div class="run-meta" id="runMeta"></div>
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:16px">
         <div class="temp-wrap">
-          <span class="temp-label">Input Temp</span>
+          <div class="tooltip-wrap">
+            <span class="temp-label">Input Temp</span>
+            <span class="tooltip-icon">?
+              <span class="tooltip-box">Temperature is pulled from Strava automatically where your device recorded it. If it's missing, enter it manually here — it will be included in the summary export.</span>
+            </span>
+          </div>
           <div class="temp-input-wrap">
             <input type="number" id="tempInput" class="temp-input" placeholder="—" min="-20" max="50" oninput="updateTemp(this.value)" />
             <span class="temp-deg">°C</span>
@@ -390,7 +400,7 @@
       <div class="table-card">
         <table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table>
       </div>
-      <button class="btn-primary" id="copyBtn" onclick="copySummary()" style="max-width:320px;margin-left:auto;margin-right:auto;background:var(--strava)">Copy summary → Claude</button>
+      <button class="btn-primary" id="copyBtn" onclick="copySummary()" style="max-width:320px;margin-left:auto;margin-right:auto;background:var(--strava)">Copy Summary</button>
     </div>
 
   </div><!-- .main -->
@@ -465,19 +475,16 @@ function updateNavBar(name) {
     const avatar = S.athleteAvatar
       ? `<img src="${S.athleteAvatar}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'" />`
       : '';
-    const t = localStorage.getItem('gpxsplit_theme') || 'system';
-    const themeSeg = `<div class="seg-ctrl" style="margin-top:4px">
-      <button class="seg-btn ${t==='system'?'active':''}" onclick="setTheme('system')" style="font-size:11px;padding:3px 8px">Auto</button>
-      <button class="seg-btn ${t==='light' ?'active':''}" onclick="setTheme('light')"  style="font-size:11px;padding:3px 8px">Light</button>
-      <button class="seg-btn ${t==='dark'  ?'active':''}" onclick="setTheme('dark')"   style="font-size:11px;padding:3px 8px">Dark</button>
-    </div>`;
+    const t = localStorage.getItem('gpxsplit_theme') || 'dark';
+    const isLight = t === 'light';
+    const themeSeg = `<button onclick="setTheme('${isLight?'dark':'light'}')" style="margin-top:5px;background:var(--bg2);border:none;border-radius:7px;padding:4px 12px;color:var(--label2);font-family:inherit;font-size:11px;font-weight:500;cursor:pointer;display:block;margin-bottom:8px">${isLight ? 'Dark Mode' : 'Light Mode'}</button>`;
     const nameBlock = S.athleteName
       ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
            <span style="font-size:16px;font-weight:600;color:var(--label);letter-spacing:-0.2px">${S.athleteName}</span>
            <button class="disconnect-btn" onclick="disconnect()" style="font-size:11px;text-align:right;padding:0">Sign out</button>
          </div>`
       : `<button class="disconnect-btn" onclick="disconnect()">Sign out</button>`;
-    const avatarCol = `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-top:8px">
+    const avatarCol = `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;padding-top:10px;padding-bottom:10px">
       <div style="display:flex;align-items:center;gap:12px">
         ${nameBlock}
         ${avatar}
@@ -531,17 +538,17 @@ function setTheme(mode) {
   localStorage.setItem('gpxsplit_theme', mode);
   document.documentElement.classList.remove('light','dark');
   if (mode === 'light') document.documentElement.classList.add('light');
-  if (mode === 'dark')  document.documentElement.classList.add('dark');
+  else                  document.documentElement.classList.add('dark');
   const active = document.querySelector('.screen.active');
   if (active) updateNavBar(active.id.replace('screen-',''));
 }
 
 window.addEventListener('load', () => {
   // dark by default, restore preference if saved
-  const saved = localStorage.getItem('gpxsplit_theme') || 'system';
+  const saved = localStorage.getItem('gpxsplit_theme') || 'dark';
   document.documentElement.classList.remove('light','dark');
   if (saved === 'light') document.documentElement.classList.add('light');
-  if (saved === 'dark')  document.documentElement.classList.add('dark');
+  else                   document.documentElement.classList.add('dark');
   S.callbackUrl = 'https://tapstr-io.github.io/splitsense/callback.html';
   if (S.token) loadActivities();
   setupDropzone(document.getElementById('dropzone'), document.getElementById('fileInput'));
@@ -836,9 +843,9 @@ function copySummary() {
 
   navigator.clipboard.writeText(lines).then(()=>{
     const btn=document.getElementById('copyBtn');
-    btn.textContent='✓ Copied — paste to Claude';
+    btn.textContent='✓ Copied!';
     btn.classList.add('copied');
-    setTimeout(()=>{btn.textContent='Copy summary → paste to Claude';btn.classList.remove('copied');},2500);
+    setTimeout(()=>{btn.textContent='Copy Summary';btn.classList.remove('copied');},2500);
   });
 }
 
@@ -1057,7 +1064,7 @@ function renderAnalysis(data, name) {
     </tr>`;
   }).join('');
 
-  document.getElementById('copyBtn').textContent='Copy summary → Claude';
+  document.getElementById('copyBtn').textContent='Copy Summary';
   document.getElementById('copyBtn').classList.remove('copied');
   showScreen('analysis');
 }
