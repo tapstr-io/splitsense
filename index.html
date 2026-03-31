@@ -48,6 +48,7 @@
     font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased; font-size: 14px;
   }
+  body.no-scroll { overflow: hidden; }
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-thumb { background: var(--label3); border-radius: 3px; }
 
@@ -74,7 +75,7 @@
   /* ── screens ── */
   .screen { display: none; }
   .screen.active { display: block; }
-  #screen-analysis.active { display: flex; flex-direction: column; }
+  #screen-analysis.active { display: flex !important; flex-direction: column; max-height: calc(100vh - 132px); padding-bottom: 12px; overflow: hidden; }
 
   /* ── page title ── */
   .page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
@@ -200,7 +201,7 @@
   .section-title { font-size: 11px; font-weight: 600; color: var(--label2); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; }
 
   /* ── splits table ── */
-  .table-card { background: var(--surface); border-radius: 12px; overflow: auto; flex: 1; min-height: 0; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 0.5px 0 var(--separator); }
+  .table-card { background: var(--surface); border-radius: 12px; overflow: visible; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 0.5px 0 var(--separator); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { padding: 10px 14px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--label2); text-align: left; border-bottom: 0.5px solid var(--separator); white-space: nowrap; position: sticky; top: 0; background: var(--surface); }
   td { padding: 9px 14px; border-bottom: 0.5px solid var(--separator); white-space: nowrap; }
@@ -223,6 +224,7 @@
 
   /* ── copy button ── */
   #copyBtn.copied { background: var(--green) !important; }
+  .analysis-scroll { flex: 0 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 4px; }
 
   /* ── or divider ── */
   .or-divider { display: flex; align-items: center; gap: 10px; margin: 20px 0; color: var(--label3); font-size: 13px; }
@@ -368,7 +370,7 @@
     </div>
 
     <!-- ── ANALYSIS ── -->
-    <div id="screen-analysis" class="screen" style="display:none;flex-direction:column;height:calc(100vh - 92px)">
+    <div id="screen-analysis" class="screen">
       <div class="analysis-header">
         <div class="analysis-title" id="analysisTitle"></div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0">
@@ -394,13 +396,15 @@
           <button class="seg-btn unitMI" onclick="setUnits(true)">mi</button>
         </div>
       </div>
-      <div class="stat-grid" id="statGrid"></div>
-      <div class="section-title">Km Splits</div>
-      <div class="legend" id="splitLegend"></div>
-      <div class="table-card">
-        <table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table>
+      <div class="analysis-scroll">
+        <div class="stat-grid" id="statGrid"></div>
+        <div class="section-title">Km Splits</div>
+        <div class="legend" id="splitLegend"></div>
+        <div class="table-card">
+          <table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table>
+        </div>
       </div>
-      <button class="btn-primary" id="copyBtn" onclick="copySummary()" style="max-width:320px;margin-left:auto;margin-right:auto;background:var(--strava)">Copy Summary</button>
+      <button class="btn-primary" id="copyBtn" onclick="copySummary()" style="max-width:320px;margin-left:auto;margin-right:auto;background:var(--strava);flex-shrink:0;margin-top:12px">Copy Summary</button>
     </div>
 
   </div><!-- .main -->
@@ -467,6 +471,7 @@ function showScreen(name) {
   document.getElementById('screen-' + name).classList.add('active');
   updateNavBar(name);
   updateUnitToggleUI();
+  document.body.classList.toggle('no-scroll', name === 'analysis');
 }
 function updateNavBar(name) {
   const el = document.getElementById('navAction');
