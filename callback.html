@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>SplitSense – Connecting…</title>
+<style>body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#1c1c1e;font-family:-apple-system,sans-serif;color:#fff;flex-direction:column;gap:12px}
+.ring{width:32px;height:32px;border-radius:50%;border:3px solid #333;border-top-color:#fc4c02;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+p{font-size:14px;color:rgba(255,255,255,0.5)}</style></head>
+<body><div class="ring"></div><p>Connecting to SplitSense…</p>
+<script>
+const params = new URLSearchParams(location.search);
+const code = params.get('code');
+const err  = params.get('error');
+if (err) {
+  document.querySelector('p').textContent = 'Authorisation cancelled.';
+} else if (code && window.opener) {
+  window.opener.postMessage({ stravaCode: code }, '*');
+  window.close();
+} else {
+  document.querySelector('p').textContent = 'No code received. Please try again.';
+}
+</script></body></html>
