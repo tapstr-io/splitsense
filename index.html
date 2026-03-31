@@ -50,6 +50,20 @@
   }
   body.no-scroll { overflow: hidden; }
   ::-webkit-scrollbar { width: 6px; }
+  @media (max-width: 600px) {
+    .stat-grid { gap: 6px; }
+    .stat-card { padding: 10px 10px; }
+    .main { padding: 16px 12px 24px; }
+    .analysis-title { font-size: 18px; }
+    table { font-size: 11px; }
+    th, td { padding: 6px 8px; }
+    .act-row { padding: 10px 12px; gap: 10px; }
+    .act-icon { width: 38px; height: 38px; border-radius: 10px; font-size: 18px; }
+    .act-name { font-size: 14px; margin-bottom: 4px; }
+    .act-meta { gap: 4px; }
+    .pill { font-size: 11px; padding: 2px 7px; }
+    .page-title { font-size: 22px; }
+  }
   ::-webkit-scrollbar-thumb { background: var(--label3); border-radius: 3px; }
 
   /* ── app shell ── */
@@ -158,7 +172,8 @@
   .act-icon { width: 52px; height: 52px; border-radius: 10px; flex-shrink: 0; overflow: hidden; }
   .act-body { flex: 1; min-width: 0; }
   .act-name { font-size: 18px; font-weight: 600; color: var(--label); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; }
-  .act-meta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+  .act-meta { display: flex; flex-direction: column; gap: 4px; }
+  .act-pills { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
   .act-date { font-size: 14px; color: var(--label2); }
   .pill { display: inline-flex; align-items: center; background: var(--bg); border-radius: 20px; padding: 4px 12px; font-size: 14px; font-weight: 500; color: var(--label2); }
   .pill-hr { color: var(--red); }
@@ -181,11 +196,11 @@
   .temp-deg { position: absolute; right: 6px; font-size: 12px; color: var(--label2); pointer-events: none; }
 
   /* ── stat grid ── */
-  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; width: 100%; }
-  .stat-card { background: var(--surface); border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0.5px 0 var(--separator); }
-  .stat-label { font-size: 11px; font-weight: 600; color: var(--label2); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
-  .stat-value { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
-  .stat-unit { font-size: 13px; font-weight: 400; color: var(--label2); }
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; width: 100%; }
+  .stat-card { background: var(--surface); border-radius: 12px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 0.5px 0 var(--separator); }
+  .stat-label { font-size: 10px; font-weight: 600; color: var(--label2); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+  .stat-value { font-size: clamp(16px, 2.8vw, 26px); font-weight: 700; letter-spacing: -0.5px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat-unit { font-size: clamp(10px, 1.4vw, 13px); font-weight: 400; color: var(--label2); }
 
   /* ── run meta ── */
   .run-meta { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--label2); margin-bottom: 16px; }
@@ -201,7 +216,7 @@
   .section-title { font-size: 11px; font-weight: 600; color: var(--label2); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 10px; }
 
   /* ── splits table ── */
-  .table-card { background: var(--surface); border-radius: 12px; overflow: visible; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 0.5px 0 var(--separator); }
+  .table-card { background: var(--surface); border-radius: 12px; overflow: auto; flex: 1; min-height: 0; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 0.5px 0 var(--separator); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { padding: 10px 14px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--label2); text-align: left; border-bottom: 0.5px solid var(--separator); white-space: nowrap; position: sticky; top: 0; background: var(--surface); }
   td { padding: 9px 14px; border-bottom: 0.5px solid var(--separator); white-space: nowrap; }
@@ -224,7 +239,6 @@
 
   /* ── copy button ── */
   #copyBtn.copied { background: var(--green) !important; }
-  .analysis-scroll { flex: 0 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 4px; }
 
   /* ── or divider ── */
   .or-divider { display: flex; align-items: center; gap: 10px; margin: 20px 0; color: var(--label3); font-size: 13px; }
@@ -396,13 +410,11 @@
           <button class="seg-btn unitMI" onclick="setUnits(true)">mi</button>
         </div>
       </div>
-      <div class="analysis-scroll">
-        <div class="stat-grid" id="statGrid"></div>
-        <div class="section-title">Km Splits</div>
-        <div class="legend" id="splitLegend"></div>
-        <div class="table-card">
-          <table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table>
-        </div>
+      <div class="stat-grid" id="statGrid" style="flex-shrink:0"></div>
+      <div class="section-title" style="flex-shrink:0">Km Splits</div>
+      <div class="legend" id="splitLegend" style="flex-shrink:0"></div>
+      <div class="table-card">
+        <table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table>
       </div>
       <button class="btn-primary" id="copyBtn" onclick="copySummary()" style="max-width:320px;margin-left:auto;margin-right:auto;background:var(--strava);flex-shrink:0;margin-top:12px">Copy Summary</button>
     </div>
@@ -802,11 +814,13 @@ function renderActivityList(runs) {
       <div class="act-body">
         <div class="act-name">${act.name}</div>
         <div class="act-meta">
-          <span>${fmtDate(act.start_date_local)}</span>
-          <span class="pill">${fmtDist(act.distance)}</span>
-          ${act.total_elevation_gain>0?`<span class="pill">↑${toDisplayElev(Math.round(act.total_elevation_gain))}${displayElevUnit()}</span>`:''}
-          ${act.average_heartrate?`<span class="pill pill-hr">♥ ${Math.round(act.average_heartrate)}</span>`:''}
-          ${act.average_temp!=null?`<span class="pill pill-temp">${act.average_temp}°C</span>`:''}
+          <div class="act-date">${fmtDate(act.start_date_local)}</div>
+          <div class="act-pills">
+            <span class="pill">${fmtDist(act.distance)}</span>
+            ${act.total_elevation_gain>0?`<span class="pill">↑${toDisplayElev(Math.round(act.total_elevation_gain))}${displayElevUnit()}</span>`:''}
+            ${act.average_heartrate?`<span class="pill pill-hr">♥ ${Math.round(act.average_heartrate)}</span>`:''}
+            ${act.average_temp!=null?`<span class="pill pill-temp">${act.average_temp}°C</span>`:''}
+          </div>
         </div>
       </div>
       <span class="list-chevron">›</span>
